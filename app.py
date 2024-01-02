@@ -9,46 +9,26 @@ from firebase_admin import firestore
 
 # Config firebase admin
 cred = credentials.Certificate("firestore.json")
-
 firebase_app = firebase_admin.initialize_app(cred)
-
 db = firestore.client()
 
+# import numpy for calc statistic index
+import numpy as np
 
-# Test bên Tân
+
+# Use for check all data
 @app.route("/")
 def index():
-    users_ref = db.collection("testco")
-    docs = users_ref.get()
+    esp32_ref = db.collection("testco")
+    docs = esp32_ref.get()
 
     # doc_ref = users_ref.document("test30")
     data = [doc.to_dict() for doc in docs]
 
-    for doc in docs:
-        print(doc.id, doc.to_dict())
     return jsonify(data)
 
 
-# @app.route("/")
-# def index():
-#     esp32_ref = db.collection("esp32")
-
-#     docs = esp32_ref.get()
-
-#     # data = [doc.to_dict() for doc in docs]
-#     for i in range(len(docs)):
-#         print(esp32_ref.document(f"test{i+1}").get().to_dict())
-
-#     # for i in len(docs):
-#     #     print(docs[i].to_dict())
-#     # for doc in docs:
-#     #     doc.update({'create_at': 1703425857})
-
-#     data = [doc.to_dict() for doc in docs]
-
-#     return jsonify(data)
-
-
+#  Use for update time data
 @app.route("/update")
 def update():
     esp32_ref = db.collection("testco")
@@ -65,6 +45,45 @@ def update():
 
     return {"Status": "Cập nhật thành công"}
 
+
+# ======== API for realtime temparature =======
+@app.route("/mean-temperature")
+def calc_mean_temperature():
+    esp32_ref = db.collection("testco")
+    docs = esp32_ref.get()
+    data = [doc.to_dict()["temperature"] for doc in docs]
+
+    return {"mean-temperature": round(np.mean(data), 2)}
+
+
+@app.route("/sd-temperature")
+def calc_sd_temperature():
+    esp32_ref = db.collection("testco")
+    docs = esp32_ref.get()
+    data = [doc.to_dict()["temperature"] for doc in docs]
+
+    return {"mean-temperature": round(np.std(data), 2)}
+
+
+@app.route("/min-temperature")
+def calc_min_temperature():
+    esp32_ref = db.collection("testco")
+    docs = esp32_ref.get()
+    data = [doc.to_dict()["temperature"] for doc in docs]
+
+    return {"mean-temperature": float(np.min(data))}
+
+
+@app.route("/max-temperature")
+def calc_max_temperature():
+    esp32_ref = db.collection("testco")
+    docs = esp32_ref.get()
+    data = [doc.to_dict()["temperature"] for doc in docs]
+
+    return {"mean-temperature": float(np.max(data))}
+
+
+# ======== API for realtime humidity =======
 
 if __name__ == "__main__":
     app.run(debug=True)
