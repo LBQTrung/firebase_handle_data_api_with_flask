@@ -1,6 +1,7 @@
 from flask import Flask
 from flask import jsonify
 from flask_cors import CORS
+import random
 
 app = Flask(__name__)
 CORS(app)
@@ -10,9 +11,12 @@ from firebase_admin import credentials
 from firebase_admin import firestore
 
 # Config firebase admin
-cred = credentials.Certificate("firestore.json")
+cred = credentials.Certificate("firestore2.json")
 firebase_app = firebase_admin.initialize_app(cred)
 db = firestore.client()
+
+esp32_ref = db.collection("testco")
+docs = esp32_ref.get()
 
 # import numpy for calc statistic index
 import numpy as np
@@ -21,9 +25,6 @@ import numpy as np
 # Use for check all data
 @app.route("/")
 def index():
-    esp32_ref = db.collection("testco")
-    docs = esp32_ref.get()
-
     # doc_ref = users_ref.document("test30")
     data = [doc.to_dict() for doc in docs]
 
@@ -38,9 +39,6 @@ def test():
 #  Use for update time data
 @app.route("/update")
 def update():
-    esp32_ref = db.collection("testco")
-    docs = esp32_ref.get()
-
     esp32_ref.document(f"testdo0").update({"create_at": 1703425857})
 
     time = 1703425857
@@ -53,78 +51,61 @@ def update():
     return {"Status": "Cập nhật thành công"}
 
 
+# Fake data for development
+@app.route("/fake-data")
+def fake_data():
+    time = 1703425857
+
+    for i in range(323):
+        if i > 0:
+            time += 2700
+
+            fake_data = {
+                "temperature": random.randint(17, 25),
+                "humidity": random.randint(89, 95),
+                "create_at": time,
+            }
+
+            esp32_ref.document(f"test{i}").set(fake_data)
+    return "Fake thành công"
+
+
 # ======== API for realtime temparature =======
-@app.route("/mean-temp")
-def calc_mean_temperature():
-    esp32_ref = db.collection("testco")
-    docs = esp32_ref.get()
+@app.route("/statistic-temp")
+def calc_statistic_temperature():
     data = [doc.to_dict()["temperature"] for doc in docs]
 
-    return {"mean": round(np.mean(data), 2)}
-
-
-@app.route("/std-temp")
-def calc_sd_temperature():
-    esp32_ref = db.collection("testco")
-    docs = esp32_ref.get()
-    data = [doc.to_dict()["temperature"] for doc in docs]
-
-    return {"std": round(np.std(data), 2)}
-
-
-@app.route("/min-temp")
-def calc_min_temperature():
-    esp32_ref = db.collection("testco")
-    docs = esp32_ref.get()
-    data = [doc.to_dict()["temperature"] for doc in docs]
-
-    return {"min": float(np.min(data))}
-
-
-@app.route("/max-temp")
-def calc_max_temperature():
-    esp32_ref = db.collection("testco")
-    docs = esp32_ref.get()
-    data = [doc.to_dict()["temperature"] for doc in docs]
-
-    return {"max": float(np.max(data))}
+    return {
+        "mean": round(np.mean(data), 2),
+        "std": round(np.std(data), 2),
+        "min": float(np.min(data)),
+        "max": float(np.max(data)),
+    }
 
 
 # ======== API for realtime humidity =======
-@app.route("/mean-humidity")
-def calc_mean_humidity():
-    esp32_ref = db.collection("testco")
-    docs = esp32_ref.get()
+@app.route("/statistic-humidity")
+def calc_statistic_humidity():
     data = [doc.to_dict()["humidity"] for doc in docs]
 
-    return {"mean": round(np.mean(data), 2)}
+    return {
+        "mean": round(np.mean(data), 2),
+        "std": round(np.std(data), 2),
+        "min": float(np.min(data)),
+        "max": float(np.max(data)),
+    }
 
 
-@app.route("/std-humidity")
-def calc_sd_humidity():
-    esp32_ref = db.collection("testco")
-    docs = esp32_ref.get()
-    data = [doc.to_dict()["humidity"] for doc in docs]
+# ======== API for Line Graph =======
+@app.route("/line-graph-temp")
+def get_data_for_line_graph_temperature():
+    dict_data = [doc.to_dict() for doc in docs]
+    # Sort dictionary according to create_at
+    dict_data.sort(key=lambda x: x["create_at"])
 
-    return {"std": round(np.std(data), 2)}
-
-
-@app.route("/min-humidity")
-def calc_min_humidity():
-    esp32_ref = db.collection("testco")
-    docs = esp32_ref.get()
-    data = [doc.to_dict()["humidity"] for doc in docs]
-
-    return {"min": float(np.min(data))}
-
-
-@app.route("/max-humidity")
-def calc_max_humidity():
-    esp32_ref = db.collection("testco")
-    docs = esp32_ref.get()
-    data = [doc.to_dict()["humidity"] for doc in docs]
-
-    return {"max": float(np.max(data))}
+    labels = [data["create_at"] for data in dict_data]
+    data = [data["temperature"] for data in dict_data]
+    return {"labels": labels, "data": data}
 
 
 if __name__ == "__main__":
