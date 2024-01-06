@@ -121,5 +121,36 @@ def get_data_for_line_graph_humidity():
     return {"labels": labels, "data": data}
 
 
+# ======== API for Bar Chart =======
+@app.route("/bar-chart-temp")
+def get_data_for_bar_chart_temperature():
+    dict_data = [doc.to_dict() for doc in docs]
+    temperature_list = [data["temperature"] for data in dict_data]
+    freq = {}
+    for temperature in temperature_list:
+        if temperature in freq:
+            freq[temperature] += 1
+        else:
+            freq[temperature] = 1
+
+    sorted_data = dict(sorted(freq.items(), key=lambda item: int(item[0])))
+    return {"labels": list(sorted_data.keys()), "data": list(sorted_data.values())}
+
+
+@app.route("/bar-chart-humidity")
+def get_data_for_bar_chart_humidity():
+    dict_data = [doc.to_dict() for doc in docs]
+    humidity_list = [data["humidity"] for data in dict_data]
+    freq = {}
+    for humidity in humidity_list:
+        if humidity in freq:
+            freq[humidity] += 1
+        else:
+            freq[humidity] = 1
+
+    sorted_data = dict(sorted(freq.items(), key=lambda item: int(item[0])))
+    return {"labels": list(sorted_data.keys()), "data": list(sorted_data.values())}
+
+
 if __name__ == "__main__":
     app.run(debug=True)
