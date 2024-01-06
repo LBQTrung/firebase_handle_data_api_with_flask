@@ -39,13 +39,15 @@ def test():
 #  Use for update time data
 @app.route("/update")
 def update():
-    esp32_ref.document(f"testdo0").update({"create_at": 1703425857})
+    esp32_ref = db.collection("testco")
+    docs = esp32_ref.get()
+    esp32_ref.document(f"testdo0").update({"create_at": 1703430600})
 
-    time = 1703425857
+    time = 1703430600
 
     for i in range(len(docs)):
         if i > 0:
-            time += 2700
+            time += 1800
             esp32_ref.document(f"testdo{i}").update({"create_at": time})
 
     return {"Status": "Cập nhật thành công"}
@@ -105,6 +107,17 @@ def get_data_for_line_graph_temperature():
 
     labels = [data["create_at"] for data in dict_data]
     data = [data["temperature"] for data in dict_data]
+    return {"labels": labels, "data": data}
+
+
+@app.route("/line-graph-humidity")
+def get_data_for_line_graph_humidity():
+    dict_data = [doc.to_dict() for doc in docs]
+    # Sort dictionary according to create_at
+    dict_data.sort(key=lambda x: x["create_at"])
+
+    labels = [data["create_at"] for data in dict_data]
+    data = [data["humidity"] for data in dict_data]
     return {"labels": labels, "data": data}
 
 
