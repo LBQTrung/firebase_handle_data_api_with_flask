@@ -11,7 +11,7 @@ from firebase_admin import credentials
 from firebase_admin import firestore
 
 # Config firebase admin
-cred = credentials.Certificate("firestore2.json")
+cred = credentials.Certificate("firestore.json")
 firebase_app = firebase_admin.initialize_app(cred)
 db = firestore.client()
 
@@ -53,8 +53,8 @@ def update():
     return {"Status": "Cập nhật thành công"}
 
 
-# Fake data for development
-@app.route("/fake-data")
+# Create data for development
+@app.route("/developer-data")
 def fake_data():
     time = 1703425857
 
@@ -69,7 +69,7 @@ def fake_data():
             }
 
             esp32_ref.document(f"test{i}").set(fake_data)
-    return "Fake thành công"
+    return {"Status": "Cập nhật thành công"}
 
 
 # ======== API for realtime temparature =======
