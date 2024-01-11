@@ -27,7 +27,7 @@ import numpy as np
 def index():
     # doc_ref = users_ref.document("test30")
     data = [doc.to_dict() for doc in docs]
-
+    print("Số lượng dữ liệu: ", len(data))
     return jsonify(data)
 
 
@@ -150,6 +150,169 @@ def get_data_for_bar_chart_humidity():
 
     sorted_data = dict(sorted(freq.items(), key=lambda item: int(item[0])))
     return {"labels": list(sorted_data.keys()), "data": list(sorted_data.values())}
+
+
+# ======= Daily Average API =======
+@app.route("/daily-average-temp")
+def get_daily_average_temp():
+    dict_data = [doc.to_dict() for doc in docs]
+    daily_temp = {
+        "24/12/2023": [],
+        "25/12/2023": [],
+        "26/12/2023": [],
+        "27/12/2023": [],
+        "28/12/2023": [],
+        "29/12/2023": [],
+        "30/12/2023": [],
+        "31/12/2023": [],
+        "01/01/2024": [],
+        "02/01/2024": [],
+        "03/01/2024": [],
+    }
+
+    for data in dict_data:
+        if data["create_at"] >= 1703376000 and data["create_at"] < 1703462400:
+            daily_temp["24/12/2023"].append(data["temperature"])
+
+        elif data["create_at"] >= 1703462400 and data["create_at"] < 1703548800:
+            daily_temp["25/12/2023"].append(data["temperature"])
+
+        elif data["create_at"] >= 1703548800 and data["create_at"] < 1703635200:
+            daily_temp["26/12/2023"].append(data["temperature"])
+
+        elif data["create_at"] >= 1703635200 and data["create_at"] < 1703721600:
+            daily_temp["27/12/2023"].append(data["temperature"])
+
+        elif data["create_at"] >= 1703721600 and data["create_at"] < 1703808000:
+            daily_temp["28/12/2023"].append(data["temperature"])
+
+        elif data["create_at"] >= 1703808000 and data["create_at"] < 1703894400:
+            daily_temp["29/12/2023"].append(data["temperature"])
+
+        elif data["create_at"] >= 1703894400 and data["create_at"] < 1703980800:
+            daily_temp["30/12/2023"].append(data["temperature"])
+
+        elif data["create_at"] >= 1703980800 and data["create_at"] < 1704067200:
+            daily_temp["31/12/2023"].append(data["temperature"])
+
+        elif data["create_at"] >= 1704067200 and data["create_at"] < 1704153600:
+            daily_temp["01/01/2024"].append(data["temperature"])
+
+        elif data["create_at"] >= 1704153600 and data["create_at"] < 1704240000:
+            daily_temp["02/01/2024"].append(data["temperature"])
+
+        elif data["create_at"] >= 1704240000 and data["create_at"] < 1704326400:
+            daily_temp["03/01/2024"].append(data["temperature"])
+
+    labels = [
+        "24/12/2023",
+        "25/12/2023",
+        "26/12/2023",
+        "27/12/2023",
+        "28/12/2023",
+        "29/12/2023",
+        "30/12/2023",
+        "31/12/2023",
+        "01/01/2024",
+        "02/01/2024",
+        "03/01/2024",
+    ]
+
+    data = []
+    data.append(np.round(np.mean(daily_temp["24/12/2023"]), 2))
+    data.append(np.round(np.mean(daily_temp["25/12/2023"]), 2))
+    data.append(np.round(np.mean(daily_temp["26/12/2023"]), 2))
+    data.append(np.round(np.mean(daily_temp["27/12/2023"]), 2))
+    data.append(np.round(np.mean(daily_temp["28/12/2023"]), 2))
+    data.append(np.round(np.mean(daily_temp["29/12/2023"]), 2))
+    data.append(np.round(np.mean(daily_temp["30/12/2023"]), 2))
+    data.append(np.round(np.mean(daily_temp["31/12/2023"]), 2))
+    data.append(np.round(np.mean(daily_temp["01/01/2024"]), 2))
+    data.append(np.round(np.mean(daily_temp["02/01/2024"]), 2))
+    data.append(np.round(np.mean(daily_temp["03/01/2024"]), 2))
+
+    return {"labels": labels, "data": data}
+
+
+@app.route("/daily-average-humidity")
+def get_daily_average_humidity():
+    dict_data = [doc.to_dict() for doc in docs]
+    daily_humidity = {
+        "24/12/2023": [],
+        "25/12/2023": [],
+        "26/12/2023": [],
+        "27/12/2023": [],
+        "28/12/2023": [],
+        "29/12/2023": [],
+        "30/12/2023": [],
+        "31/12/2023": [],
+        "01/01/2024": [],
+        "02/01/2024": [],
+        "03/01/2024": [],
+    }
+
+    for data in dict_data:
+        if data["create_at"] >= 1703376000 and data["create_at"] < 1703462400:
+            daily_humidity["24/12/2023"].append(data["humidity"])
+
+        elif data["create_at"] >= 1703462400 and data["create_at"] < 1703548800:
+            daily_humidity["25/12/2023"].append(data["humidity"])
+
+        elif data["create_at"] >= 1703548800 and data["create_at"] < 1703635200:
+            daily_humidity["26/12/2023"].append(data["humidity"])
+
+        elif data["create_at"] >= 1703635200 and data["create_at"] < 1703721600:
+            daily_humidity["27/12/2023"].append(data["humidity"])
+
+        elif data["create_at"] >= 1703721600 and data["create_at"] < 1703808000:
+            daily_humidity["28/12/2023"].append(data["humidity"])
+
+        elif data["create_at"] >= 1703808000 and data["create_at"] < 1703894400:
+            daily_humidity["29/12/2023"].append(data["humidity"])
+
+        elif data["create_at"] >= 1703894400 and data["create_at"] < 1703980800:
+            daily_humidity["30/12/2023"].append(data["humidity"])
+
+        elif data["create_at"] >= 1703980800 and data["create_at"] < 1704067200:
+            daily_humidity["31/12/2023"].append(data["humidity"])
+
+        elif data["create_at"] >= 1704067200 and data["create_at"] < 1704153600:
+            daily_humidity["01/01/2024"].append(data["humidity"])
+
+        elif data["create_at"] >= 1704153600 and data["create_at"] < 1704240000:
+            daily_humidity["02/01/2024"].append(data["humidity"])
+
+        elif data["create_at"] >= 1704240000 and data["create_at"] < 1704326400:
+            daily_humidity["03/01/2024"].append(data["humidity"])
+
+    labels = [
+        "24/12/2023",
+        "25/12/2023",
+        "26/12/2023",
+        "27/12/2023",
+        "28/12/2023",
+        "29/12/2023",
+        "30/12/2023",
+        "31/12/2023",
+        "01/01/2024",
+        "02/01/2024",
+        "03/01/2024",
+    ]
+
+    data = []
+    data.append(np.round(np.mean(daily_humidity["24/12/2023"]), 2))
+    data.append(np.round(np.mean(daily_humidity["25/12/2023"]), 2))
+    data.append(np.round(np.mean(daily_humidity["26/12/2023"]), 2))
+    data.append(np.round(np.mean(daily_humidity["27/12/2023"]), 2))
+    data.append(np.round(np.mean(daily_humidity["28/12/2023"]), 2))
+    data.append(np.round(np.mean(daily_humidity["29/12/2023"]), 2))
+    data.append(np.round(np.mean(daily_humidity["30/12/2023"]), 2))
+    data.append(np.round(np.mean(daily_humidity["31/12/2023"]), 2))
+    data.append(np.round(np.mean(daily_humidity["01/01/2024"]), 2))
+    data.append(np.round(np.mean(daily_humidity["02/01/2024"]), 2))
+    data.append(np.round(np.mean(daily_humidity["03/01/2024"]), 2))
+
+    return {"labels": labels, "data": data}
 
 
 if __name__ == "__main__":
